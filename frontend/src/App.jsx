@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { stripExifAndRename } from './utils/imageProcessing';
 import { uploadPhoto } from './api/cloudflareService';
 import './index.css';
@@ -41,7 +42,7 @@ function App() {
       // 2. Cloudflare Worker로 전송
       const result = await uploadPhoto(processedFile, option);
       
-      setResultMessage(`[${option}] 신청이 완료되었습니다! (임시 결과: ${result.message})`);
+      setResultMessage(`[${option}] 신청이 완료되었습니다!\n\n${result.message}`);
     } catch (error) {
       setResultMessage(`오류가 발생했습니다: ${error.message}`);
     } finally {
@@ -52,8 +53,8 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4">
       <header className="mb-8 text-center">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">Photo yuka</h1>
-        <p className="text-xl text-gray-600">가장 쉽고 빠른 나만의 AI 사진관</p>
+        <h1 className="text-4xl font-bold text-gray-800 mb-2">인생사진관</h1>
+        <p className="text-xl text-gray-600">당신의 사진을 특별하게 만들어드립니다</p>
       </header>
 
       <main className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8">
@@ -98,37 +99,50 @@ function App() {
               onChange={(e) => setPrivacyAgreed(e.target.checked)}
             />
             <span className="text-lg font-medium text-gray-800">
-              [필수] 내 사진은 이번 생성에만 사용되고 즉시 삭제되는 것에 동의합니다.
+              [필수] 내 사진은 AI 분석에만 사용되며, 분석 즉시 삭제되는 것에 동의합니다.
             </span>
           </label>
           <p className="mt-2 text-sm text-gray-500 pl-9">
-            🔒 안심 약속: 고객님의 사진은 새 프로필 완성 즉시 시스템에서 완전히 영구 삭제됩니다.
+            🔒 개인정보 보호: 안심하세요. 업로드하신 사진은 AI 분석 후 즉시 삭제되며 저장되지 않습니다.
           </p>
         </div>
 
         {/* 서비스 선택 버튼 영역 */}
         <div className="space-y-4">
           <button 
-            onClick={() => handleOptionSelect('빠른 사진')}
+            onClick={() => handleOptionSelect('내 사진 칭찬받기')}
             disabled={loading}
-            className="w-full py-5 bg-green-500 hover:bg-green-600 text-white text-2xl font-bold rounded-xl shadow-lg transition-colors disabled:opacity-50"
+            className="w-full py-5 bg-green-500 hover:bg-green-600 text-white rounded-xl shadow-lg transition-colors disabled:opacity-50 flex flex-col items-center justify-center"
           >
-            🚀 빠른 사진 (기본 증명/프로필)
+            <span className="text-2xl font-bold mb-1">📸 내 사진 칭찬받기</span>
+            <span className="text-sm font-medium opacity-90">AI가 내 사진의 매력을 찾아드려요</span>
           </button>
+          
           <button 
-            onClick={() => handleOptionSelect('고급 사진')}
+            onClick={() => handleOptionSelect('나를 소개해줘')}
             disabled={loading}
-            className="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white text-2xl font-bold rounded-xl shadow-lg transition-colors disabled:opacity-50"
+            className="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg transition-colors disabled:opacity-50 flex flex-col items-center justify-center"
           >
-            ✨ 고급 사진 (고해상도 테마/배경)
+            <span className="text-2xl font-bold mb-1">💌 나를 소개해줘</span>
+            <span className="text-sm font-medium opacity-90">프로필·SNS용 자기소개 문구 3가지</span>
           </button>
+          
           <button 
-            onClick={() => handleOptionSelect('맞춤형 사진')}
+            onClick={() => handleOptionSelect('내 인생 이야기')}
             disabled={loading}
-            className="w-full py-5 bg-purple-600 hover:bg-purple-700 text-white text-2xl font-bold rounded-xl shadow-lg transition-colors disabled:opacity-50"
+            className="w-full py-5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-lg transition-colors disabled:opacity-50 flex flex-col items-center justify-center"
           >
-            💎 맞춤형 사진 (나만의 AI 모델 생성)
+            <span className="text-2xl font-bold mb-1">📖 내 인생 이야기</span>
+            <span className="text-sm font-medium opacity-90">소중한 사람에게 전하는 인생 편지</span>
           </button>
+        </div>
+
+        {/* 나중을 위한 구조 설계: 유료 버전 출시 시 활성화할 토글 (현재 숨김 상태) */}
+        <div className="mt-6 flex justify-center hidden">
+          <div className="bg-gray-200 p-1 rounded-lg inline-flex">
+            <button className="px-4 py-2 bg-white rounded shadow text-sm font-bold text-gray-800">텍스트 모드</button>
+            <button className="px-4 py-2 rounded text-sm font-bold text-gray-500 hover:text-gray-800">이미지 모드</button>
+          </div>
         </div>
 
         {/* 로딩 및 결과 메시지 */}
@@ -139,8 +153,10 @@ function App() {
         )}
         
         {resultMessage && !loading && (
-          <div className="mt-8 p-4 bg-gray-100 rounded-lg text-center text-lg font-medium text-gray-800">
-            {resultMessage}
+          <div className="mt-8 p-6 bg-gray-100 rounded-lg text-left text-lg text-gray-800 shadow-inner">
+            <ReactMarkdown className="space-y-4">
+              {resultMessage}
+            </ReactMarkdown>
           </div>
         )}
 
