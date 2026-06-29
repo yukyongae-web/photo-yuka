@@ -15,7 +15,8 @@ function App() {
 
   const handleDownload = () => {
     if (!resultMessage) return;
-    const blob = new Blob([resultMessage], { type: 'text/plain;charset=utf-8' });
+    // 한글 깨짐 방지를 위해 UTF-8 BOM(\uFEFF) 추가
+    const blob = new Blob(['\uFEFF' + resultMessage], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
