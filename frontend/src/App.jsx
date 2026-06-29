@@ -13,6 +13,38 @@ function App() {
   
   const fileInputRef = useRef(null);
 
+  const handleDownload = () => {
+    if (!resultMessage) return;
+    const blob = new Blob([resultMessage], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `인생사진관_결과_${new Date().toISOString().slice(0, 10)}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleShare = async () => {
+    if (!resultMessage) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: '인생사진관 AI 결과물',
+          text: resultMessage,
+        });
+      } catch (error) {
+        console.error('공유 실패:', error);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(resultMessage);
+        alert('결과가 클립보드에 복사되었습니다!');
+      } catch (error) {
+        alert('클립보드 복사에 실패했습니다.');
+      }
+    }
+  };
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -153,10 +185,27 @@ function App() {
         )}
         
         {resultMessage && !loading && (
-          <div className="mt-8 p-6 bg-gray-100 rounded-lg text-left text-lg text-gray-800 shadow-inner">
-            <ReactMarkdown className="space-y-4">
-              {resultMessage}
-            </ReactMarkdown>
+          <div className="mt-8 flex flex-col items-center">
+            <div className="w-full p-6 bg-gray-100 rounded-lg text-left text-lg text-gray-800 shadow-inner">
+              <ReactMarkdown className="space-y-4">
+                {resultMessage}
+              </ReactMarkdown>
+            </div>
+            
+            <div className="flex gap-4 mt-6 w-full">
+              <button 
+                onClick={handleDownload} 
+                className="flex-1 py-4 bg-gray-800 hover:bg-gray-900 text-white rounded-xl font-bold shadow-lg transition-colors flex items-center justify-center gap-2 text-lg"
+              >
+                💾 텍스트 저장
+              </button>
+              <button 
+                onClick={handleShare} 
+                className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg transition-colors flex items-center justify-center gap-2 text-lg"
+              >
+                📤 공유하기
+              </button>
+            </div>
           </div>
         )}
 
